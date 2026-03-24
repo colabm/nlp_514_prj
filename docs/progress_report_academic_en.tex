@@ -1,0 +1,85 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\usepackage{enumitem}
+
+\title{CS6493 Natural Language Processing \\ Project Progress Report \\ \large Auto-Reflective Academic Agent: A Self-Correcting Conversational System}
+\author{Group Project - Topic 3}
+\date{March 25, 2026}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+Retrieval-Augmented Generation (RAG) has become the de facto standard for connecting Large Language Models (LLMs) to external knowledge bases. However, when applied to complex, domain-specific documents such as academic papers, traditional RAG systems frequently suffer from hallucinations, incomplete context retrieval, and degradation in multi-turn conversational coherence. To address these challenges, our group has selected Topic 3 (Building Practical LLM Applications with LlamaIndex) to develop a conversational agent tailored for academic research. 
+
+To fulfill the project's requirement for innovation and advanced features, we propose an \textbf{Auto-Reflective Academic Agent}. Rather than relying on explicit human feedback (which is slow and labor-intensive), our system introduces an automated self-evaluation and self-correction mechanism inspired by RLAIF (Reinforcement Learning from AI Feedback) and Self-RAG frameworks. The agent utilizes an internal "Critic" to evaluate its own draft responses against retrieved context, autonomously rewriting queries and regenerating answers if the initial output falls below a predefined quality threshold.
+
+\section{Methodology and System Architecture}
+The proposed system is constructed using the LlamaIndex framework and operates on a localized deployment of quantized LLMs (via Ollama) to ensure data privacy and computational efficiency. The architecture comprises four primary modules:
+
+\subsection{Document Processing and Ingestion}
+Academic PDFs typically contain dense textual structures. Our document ingestion module is designed to test two distinct chunking strategies to evaluate their impact on downstream retrieval accuracy:
+\begin{itemize}
+    \item \textbf{Fixed-size Chunking}: A baseline strategy utilizing standard token limits (e.g., 512 tokens) with an overlap mechanism to preserve local context.
+    \item \textbf{Semantic Chunking}: An advanced strategy that leverages embedding models to detect sentence and paragraph boundaries, ensuring that discrete mathematical formulas or logical arguments are not arbitrarily severed.
+\end{itemize}
+
+\subsection{Retrieval and Conversational Memory}
+We implement a dense vector retrieval system using HuggingFace embeddings. To maintain coherence across multiple turns of dialogue—a critical requirement for analyzing complex academic papers—we integrate a short-term conversational memory buffer. This allows the system to resolve coreferences (e.g., "What are the limitations of \textit{this} method?") by maintaining the historical context of the current session.
+
+\subsection{The Auto-Reflective Critic Module (Core Innovation)}
+The primary innovation of our system is the Critic Module. When a user issues a query, the system first retrieves the relevant context and generates a draft response. Before presenting this response to the user, the Critic Module evaluates the draft based on two fundamental dimensions:
+\begin{itemize}
+    \item \textbf{Faithfulness}: Ensuring the generated text is strictly grounded in the retrieved chunks without hallucinations.
+    \item \textbf{Answer Relevance}: Ensuring the response directly and comprehensively addresses the user's query.
+\end{itemize}
+If the draft scores below the acceptability threshold, the Critic generates diagnostic feedback. The system then utilizes this feedback to autonomously rewrite the original query, re-retrieve context, and generate a new response. This iterative loop continues until the quality threshold is met or a maximum iteration limit is reached.
+
+\subsection{LLM Backend Comparison}
+To systematically analyze the trade-off between model capability and computational overhead, we deploy two different LLM backends: a high-capacity instruction-tuned model (e.g., Qwen-2.5-7B) to serve as the primary generator and critic, and a lightweight baseline model (e.g., Qwen-2.5-1.5B). Both models are deployed using 4-bit quantization to evaluate their performance in resource-constrained environments.
+
+\section{Evaluation Framework}
+Deviating from traditional hardware-centric metrics (e.g., memory usage), our evaluation focuses entirely on the Natural Language Processing capabilities of the system. We utilize the RAG Triad framework for quantitative assessment:
+
+\begin{enumerate}
+    \item \textbf{Context Relevance}: Measures the signal-to-noise ratio of the retrieved document chunks.
+    \item \textbf{Faithfulness (Hallucination Rate)}: Quantifies the extent to which the final answer aligns with the source text.
+    \item \textbf{Answer Relevance}: Assesses the semantic similarity between the user's intent and the final answer.
+\end{enumerate}
+
+Furthermore, to quantify the effectiveness of our core innovation, we introduce a custom metric: the \textbf{Self-Correction Success Rate}. This measures the percentage of queries where the Critic module successfully identifies a substandard draft and elevates the final answer's score above the threshold through the auto-reflective loop.
+
+\section{Overall Plan and Current Progress}
+
+\subsection{Overall Project Plan}
+The project is divided into three main phases:
+\begin{itemize}
+    \item \textbf{Phase 1: Architecture Design and Core Implementation} (Completed). This includes setting up the environment, configuring LlamaIndex, implementing the document processor, and building the Critic module.
+    \item \textbf{Phase 2: Integration and Interface Development} (Completed). Connecting the core modules into a unified pipeline and developing an interactive web interface (Streamlit) for demonstration.
+    \item \textbf{Phase 3: Experiments and Evaluation} (Ongoing). Constructing the test dataset, running comparative experiments across different chunking strategies and LLMs, and calculating the evaluation metrics.
+\end{itemize}
+
+\subsection{Tasks Completed So Far}
+As of the submission of this progress report, our group has achieved the following milestones:
+\begin{enumerate}
+    \item \textbf{System Architecture Finalized}: The conceptual design of the Auto-Reflective workflow has been theoretically validated and documented.
+    \item \textbf{Backend Infrastructure Developed}: The local deployment of quantized LLMs using Ollama is fully functional. The LlamaIndex data ingestion and vector indexing pipelines have been implemented.
+    \item \textbf{Core Innovation Implemented}: The Critic module, including its prompt engineering for structured evaluation and the feedback loop mechanism, has been successfully coded and unit-tested.
+    \item \textbf{User Interface}: A functional Streamlit application has been built, allowing users to upload PDFs, interact with the agent, and visualize the internal "reflection" process.
+\end{enumerate}
+
+\subsection{Remaining Tasks}
+The primary focus for the remainder of the project timeline is rigorous academic evaluation:
+\begin{enumerate}
+    \item \textbf{Dataset Construction}: Curating a specialized test set of 20-30 complex academic questions (spanning summary, methodology, and multi-turn inquiries) based on selected NLP papers.
+    \item \textbf{Empirical Experiments}: Executing the test set against both the 7B and 1.5B models, and across both fixed-size and semantic chunking strategies.
+    \item \textbf{Metric Computation}: Utilizing LLM-as-a-judge frameworks alongside human spot-checking to compute the RAG Triad scores and the Self-Correction Success Rate.
+    \item \textbf{Final Report and Presentation}: Synthesizing the experimental data into the final project report and preparing the 15-minute class presentation.
+\end{enumerate}
+
+\end{document}

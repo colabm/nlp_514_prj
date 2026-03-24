@@ -1,0 +1,86 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{ctex}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\usepackage{enumitem}
+
+\title{CS6493 自然语言处理 \\ 课程项目进度报告 \\ \large 自动反思学术代理：基于自我纠错机制的对话系统}
+\author{小组项目 - Topic 3}
+\date{2026年3月25日}
+
+\begin{document}
+
+\maketitle
+
+\section{引言}
+检索增强生成（Retrieval-Augmented Generation, RAG）已成为连接大型语言模型（LLM）与外部知识库的普遍范式。然而，在处理诸如学术论文等结构复杂、垂直领域的文档时，传统的 RAG 系统经常面临“幻觉”、上下文检索不完整以及多轮对话连贯性下降等问题。为应对这些挑战，本小组选择了 Topic 3（利用 LlamaIndex 构建实用的 LLM 应用），旨在开发一款专为学术研究定制的对话代理（Conversational Agent）。
+
+为满足项目对创新性和高级特性的要求，我们提出了一种\textbf{自动反思学术代理（Auto-Reflective Academic Agent）}。该系统摒弃了依赖人类进行显式反馈的低效模式，引入了受 RLAIF（基于 AI 反馈的强化学习）和 Self-RAG 框架启发的自动自我评估与自我纠错机制。代理内置了一个“Critic（批评家）”模块，用于根据检索到的上下文对其生成的初步回答进行评估；若质量低于预设阈值，系统将自主重写查询并重新生成回答。
+
+\section{方法论与系统架构}
+本系统基于 LlamaIndex 框架构建，并在本地部署了量化的 LLM（通过 Ollama 驱动），以确保数据隐私并提高计算效率。系统架构主要包含以下四个模块：
+
+\subsection{文档处理与解析}
+学术 PDF 通常包含密集的文本结构。我们的文档摄入模块设计了两种不同的分块（Chunking）策略，以评估其对下游检索准确性的影响：
+\begin{itemize}
+    \item \textbf{固定大小分块（Fixed-size Chunking）}：作为基线策略，采用标准的 Token 限制（如 512 个 Token）并保留一定重叠度，以维持局部上下文的连贯。
+    \item \textbf{语义分块（Semantic Chunking）}：作为高级策略，利用嵌入模型（Embedding Model）检测句子和段落边界，确保离散的数学公式或完整的逻辑论证不会被生硬切断。
+\end{itemize}
+
+\subsection{检索与对话记忆}
+我们实现了基于 HuggingFace 嵌入的密集向量检索系统。此外，为了在多轮对话中保持逻辑连贯——这是深入分析学术论文的核心要求——我们集成了短期对话记忆缓存。该机制通过维护当前会话的历史上下文，赋予了系统指代消解（Coreference Resolution）的能力（例如处理“\textit{该}方法的局限性是什么？”类问题）。
+
+\subsection{自动反思 Critic 模块（核心创新点）}
+Critic 模块是本系统的核心创新。当用户提出查询时，系统首先检索相关上下文并生成“草稿”回答。在将最终结果呈现给用户之前，Critic 模块将从以下两个核心维度对草稿进行打分评估：
+\begin{itemize}
+    \item \textbf{忠实度（Faithfulness）}：确保生成的文本严格基于检索到的文本块，未产生任何“幻觉”。
+    \item \textbf{回答相关性（Answer Relevance）}：确保回答直接且全面地解答了用户的提问。
+\end{itemize}
+如果草稿的得分低于可接受阈值，Critic 将生成诊断性反馈。系统随后利用该内部反馈自主重写原始查询，触发新的检索与生成循环。这一迭代过程将持续进行，直到回答质量达标或达到设定的最大迭代次数。
+
+\subsection{LLM 后端对比}
+为了系统性地分析模型能力与计算开销之间的权衡，我们部署了两种不同的 LLM 后端：一个高参数量的指令微调模型（如 Qwen-2.5-7B）作为主要的生成器与 Critic；另一个作为轻量级基线模型（如 Qwen-2.5-1.5B）。两个模型均采用 4-bit 量化格式部署，以测试其在资源受限环境下的表现。
+
+\section{评估体系}
+有别于传统的硬件性能评估（如内存占用测试），我们的评估完全聚焦于系统的自然语言处理（NLP）能力。我们采用 RAG 黄金三角（RAG Triad）框架进行量化评估：
+
+\begin{enumerate}
+    \item \textbf{上下文相关性（Context Relevance）}：衡量检索到的文档块的信噪比。
+    \item \textbf{忠实度（Faithfulness / Hallucination Rate）}：量化最终回答与源文本的一致性程度。
+    \item \textbf{回答相关性（Answer Relevance）}：评估用户意图与最终回答之间的语义相似度。
+\end{enumerate}
+
+此外，为了直观地量化核心创新点的有效性，我们引入了一项自定义指标：\textbf{自我纠错成功率（Self-Correction Success Rate）}。该指标衡量了 Critic 模块成功识别不合格草稿，并通过自动反思循环将最终回答的分数提升至阈值以上的频率。
+
+\section{整体计划与当前进度}
+
+\subsection{项目整体计划}
+项目主要分为三个阶段：
+\begin{itemize}
+    \item \textbf{第一阶段：架构设计与核心实现}（已完成）。包括环境配置、LlamaIndex 框架搭建、文档处理器实现以及 Critic 模块的开发。
+    \item \textbf{第二阶段：系统集成与界面开发}（已完成）。将核心模块连接成统一的流水线，并开发交互式 Web 界面（Streamlit）用于系统演示。
+    \item \textbf{第三阶段：实验与评估}（进行中）。构建测试数据集，在不同的分块策略和 LLM 之间运行对比实验，并计算上述评估指标。
+\end{itemize}
+
+\subsection{目前已完成任务}
+截至提交本进度报告时，本小组已达成以下里程碑：
+\begin{enumerate}
+    \item \textbf{系统架构定型}：自动反思工作流的概念设计已在理论层面得到验证并形成文档。
+    \item \textbf{底层基础设施开发}：基于 Ollama 的量化 LLM 本地部署已完全跑通。LlamaIndex 的数据接入与向量索引构建流水线均已实现。
+    \item \textbf{核心创新点实现}：Critic 模块已完成代码编写与单元测试，包括用于结构化评估的提示词工程（Prompt Engineering）以及反馈循环控制机制。
+    \item \textbf{用户交互界面}：构建了功能完备的 Streamlit 应用程序，允许用户上传 PDF，与代理进行多轮对话，并以可视化的方式查看内部的“反思”过程与打分详情。
+\end{enumerate}
+
+\subsection{剩余任务}
+在剩余的项目周期内，我们的主要工作将集中在严谨的学术评估上：
+\begin{enumerate}
+    \item \textbf{数据集构建}：基于挑选的 NLP 顶会论文，精心设计一个包含 20-30 个复杂学术提问（涵盖总结类、方法论类及多轮语境类问题）的专门测试集。
+    \item \textbf{实证实验}：在 7B 和 1.5B 两个模型上，以及固定分块和语义分块两种策略下，完整运行该测试集以获取对比数据。
+    \item \textbf{指标计算}：结合 LLM-as-a-judge 自动化评估框架与人工抽查，计算 RAG 黄金三角得分以及自我纠错成功率。
+    \item \textbf{最终报告与展示}：将实验数据汇总并撰写最终的课程项目报告，同时准备 15 分钟的课堂展示材料。
+\end{enumerate}
+
+\end{document}
