@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "id": 1,
+      "question": "这篇论文的主要贡献是什么？",
+      "type": "summary"
+    },
+    {
+      "id": 2,
+      "question": "作者使用了什么方法来解决问题？",
+      "type": "methodology"
+    },
+    {
+      "id": 3,
+      "question": "实验中使用了哪些数据集？",
+      "type": "factual"
+    },
+    {
+      "id": 4,
+      "question": "与基线方法相比，提出的方法有什么优势？",
+      "type": "comparison"
+    },
+    {
+      "id": 5,
+      "question": "论文中提到的局限性有哪些？",
+      "type": "analysis"
+    }
+  ],
+  "multi_turn": [
+    {
+      "id": 101,
+      "turns": [
+        "这篇论文的研究背景是什么？",
+        "基于这个背景，作者提出了什么假设？",
+        "这个假设是如何被验证的？"
+      ],
+      "type": "context_dependent"
+    }
+  ]
+}
