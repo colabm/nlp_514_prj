@@ -16,7 +16,7 @@ class LLMConfig(BaseModel):
     
     model_name: str = "qwen2.5:7b-instruct"
     temperature: float = 0.1
-    request_timeout: float = 120.0
+    request_timeout: float = 300.0  # 5分钟超时
 
 
 class CriticConfig(BaseModel):

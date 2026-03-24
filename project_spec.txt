@@ -1,0 +1,231 @@
+City University of Hong Kong Natural Language Processing, Q2 2025-2026
+CS6493: Natural Language Processing - Projects
+February 26, 2026
+Instructions:
+• Deadline: April 15, 2026 (Monday) at 6:00 PM.
+• This is a group project. Each group should consist of 1 to 6 members. Please register your
+group on Canvas by March 9, 2026, at 6:00 PM.
+• You are required to submit a progress report by March 25, 2026. The progress report
+should not exceed five pages. Each group only needs to submit one copy.
+• Choose one topic from the six options provided below for your group.
+• You are required to submit your project report and source code via Canvas, and deliver
+a 15-minute presentation in class on April 14. The project report should include at least
+the following sections: introduction, related work, methodology, experiments, and dis-
+cussion. The main content of the report can be up to 6 pages, with no page limit for
+references and appendices. Source code may be submitted as a Jupyter Notebook or
+Python files.
+• Please include your presentation slides at the end of the report.
+• This project is open-ended, and you are strongly encouraged to come up with creative
+ideas and designs!
+Department of Computer Science 1City University of Hong Kong Natural Language Processing, Q2 2025-2026
+Topic 1 - Mathematical Reasoning Ability of Large Language Models
+Large language models (LLMs) have demonstrated remarkable capabilities in natural lan-
+guage processing. However, their mathematical reasoning ability remains a critical area of
+research, especially when dealing with complex problems found in challenging datasets such
+as MATH-500, GSM8K and AIME 2024. These datasets require models to interpret mathemat-
+ical expressions, understand abstract concepts, and generate accurate solutions.
+The prompt-based methods, such as Chain of Thought (COT) and Self-Refine prompting,
+are structured approaches to mathematical problem solving. These methods provide specific
+cues to break down complex problems into manageable steps, guiding models towards logical
+solutions. To solve the mathematical problems, you are encouraged to:
+1. Explore the effectiveness of different prompt methods and different models in mathe-
+matical reasoning, including but not limited to: CoT (Wei J, Wang X et al.), Self-Refine
+(Madaan A, Tandon N, Gupta P , et al.), Self-Consistency (Wang X, Wei J, Schuurmans D,
+et al.), Least-to-Most prompting (Zhou et al.), Auto-CoT (Zhang et al.), etc. You should
+experiment with at least three different prompt methods and test them on the following
+two models:
+• Qwen2.5-Math-1.5B
+• DeepSeek-R1-Qwen-1.5B
+You should collect and preprocess the MATH-500, GSM8K (Test Set) and AIME 2024
+dataset, then evaluate the models on them.
+2. In the metrics section, focus on two key concepts:
+• Accuracy: the ratio of correctly solved problems to the total number of problems.
+• Response length: the number of characters or words in a response.
+You are also encouraged to explore new prompt methods or evaluation metrics.
+Hint: The token consumption of Self-Consistency method may be extremely high, so you are
+suggested to set the iteration number to be 5.
+Reference
+1. Wei J, Wang X, Schuurmans D, et al. Chain-of-thought prompting elicits reasoning in
+large language models[J]. Advances in Neural Information Processing Systems, 2022, 35:
+24824–24837.
+2. Madaan A, Tandon N, Gupta P , et al. Self-refine: Iterative refinement with self-feedback[J].
+Advances in Neural Information Processing Systems, 2024, 36.
+3. Wang X, Wei J, Schuurmans D, et al. Self-consistency improves chain of thought reason-
+ing in language models[J]. arXiv preprint arXiv:2203.11171, 2022.
+4. Cobbe K, Kosaraju V , Bavarian M, et al. Training verifiers to solve math word prob-
+lems[J]. arXiv preprint arXiv:2110.14168, 2021.
+5. Denny Zhou, et al. Least-to-Most Prompting Enables Complex Reasoning in Large Lan-
+guage Models. arXiv preprint arXiv:2205.10625, 2023.
+6. Zhuosheng Zhang, et al. Automatic Chain of Thought Prompting in Large Language
+Models. arXiv preprint arXiv:2210.03493, 2022.
+Department of Computer Science 2City University of Hong Kong Natural Language Processing, Q2 2025-2026
+Topic 2 - Hallucination Detection and Correction in LLMs
+Large language models (LLMs) have demonstrated remarkable capabilities in many tasks. De-
+spite their fluency, LLMs frequently generate factually incorrect statements, known as hallu-
+cinations, due to limitations in training data, contextual understanding, or reasoning. This
+project evaluates hallucination rates using datasets like TruthfulQA (Lin et al., 2022), which
+measures models’ propensity to replicate human falsehoods, and HaluEval (Li et al., 2023),
+a benchmark covering diverse hallucination types (e.g., factual, contextual). The investiga-
+tion spans three dimensions: factual accuracy (verifiable claims), contextual coherence (logical
+consistency within a response), and citation reliability (proper sourcing). Developing robust
+hallucination detection systems is critical for high-stakes applications in healthcare, legal anal-
+ysis, and news generation.
+The following approaches are recommended for systematic evaluation and correction:
+1. Benchmark hallucination rates across models. Consider analyzing how hallucination
+rates correlate with model size, exploring the scaling law of factual accuracy:
+• Compare closed models (GPT, Claude) vs open models (Llama, DeepSeek):
+• Test different prompting strategies. Compare at least three methods:
+– Standard prompting: Direct queries.
+– Citation enforcement: Require inline references (e.g., “According to the ...”).
+– Self-reflection: Ask models to self-assess credibility.
+• Hallucination taxonomy analysis: Classify errors into:
+– Fabrication: Generating entirely false information.
+– Distortion: Misrepresenting true facts (e.g., swapping dates).
+– Omission: Excluding critical context (e.g., not mentioning vaccine side effects).
+2. Strategies to Mitigate Hallucinations:
+• Fine-tuning on factual data: Train models on curated datasets (e.g., biomedical jour-
+nals, court rulings) to strengthen factual grounding. Consider using parameter-
+efficient fine-tuning methods like LoRA to reduce computational cost while adapt-
+ing models to factual domains.
+• Retrieval-augmented generation (RAG): Integrate real-time knowledge retrieval from
+trusted sources before generating responses.
+• Post-hoc correction: Implement a secondary model to detect and rewrite halluci-
+nated content.
+References
+1. Lin S, Hilton J, Evans O. Truthfulqa: Measuring how models mimic human falsehoods.
+ACL, 2022.
+2. Li J, et al. HaluEval: A Large-Scale Hallucination Evaluation Benchmark for Large Lan-
+guage Models. EMNLP , 2023.
+3. Min S, et al. Factscore: Fine-grained atomic evaluation of factual precision in long form
+text generation. EMNLP , 2023.
+4. Ji Z, et al. Survey of hallucination in natural language generation. ACM computing
+surveys, 2023.
+Department of Computer Science 3City University of Hong Kong Natural Language Processing, Q2 2025-2026
+Topic 3 - Building Practical LLM Applications with LlamaIndex
+LlamaIndex is a cutting-edge data framework for connecting custom data sources to large lan-
+guage models (LLMs). This project focuses on developing production-grade LLM applications
+with an emphasis on educational implementation rather than enterprise deployment. Students
+will explore core challenges in real-world LLM application development, including advanced
+retrieval strategies and automated evaluation, while considering computational constraints.
+The project requires addressing two core technical challenges:
+1. System Architecture Design: Construct application pipelines using LlamaIndex’s data
+connectors and retrieval modules:
+• Implement at least one application types from:
+– Document QA System: Build RAG pipelines with adaptive chunking strategies
+(e.g., 256-token chunks with 10% overlap)
+– Conversational Agent: Develop chatbot with short-term memory management
+– Autonomous Agent: Create simple task-oriented agents with API integration
+• Integrate data connectors for at least one source type (PDFs, text files, or web con-
+tent)
+• Compare performance of 2+ LLM backends (e.g., Mistral-7B vs. smaller models like
+T5-base)
+2. Capability Evaluation: Establish practical evaluation metrics:
+• Design test cases measuring response relevance and task completion rate
+• Analyze memory-performance tradeoffs using different chunking strategies
+Advanced suggestions: Explore quantization techniques for model deployment or implement
+basic human feedback mechanisms.
+Hint: For computational efficiency, consider using quantized models (e.g., GPTQ-4bit ver-
+sions) through Ollama.
+Reference
+1. Touvron H, et al. Llama 2: Open Foundation and Fine-Tuned Chat Models. Meta 2023.
+2. Jiang W, et al. Mistral 7B. arXiv preprint arXiv:2310.06825 (2023)
+3. Xiao G, et al. SmoothQuant: Accurate and Efficient Post-Training Quantization for Large
+Language Models. ICML 2023.
+4. LlamaIndex OSS Documentation: https://developers.llamaindex.ai/python/framework
+Department of Computer Science 4City University of Hong Kong Natural Language Processing, Q2 2025-2026
+Topic 4 - Retrieval-Augmented Generation for Knowledge-Intensive
+Tasks
+Retrieval-Augmented Generation (RAG) integrates neural retrieval with large language mod-
+els to address knowledge-intensive NLP tasks. Instead of relying solely on parametric knowl-
+edge, RAG systems retrieve external documents to ground generation. This project aims to
+systematically investigate how retrieval quality, retrieval configuration, and generation strate-
+gies jointly influence answer accuracy, faithfulness, and robustness. Using benchmark datasets
+from different domains, such as Natural Questions (Kwiatkowski et al.), PubMedQA (Jin et
+al.), and FinanceBench (Islam et al.), you will evaluate how retrieval and generation perfor-
+mance varies across domains with different knowledge structures and terminology. Metrics
+may include answer accuracy, evidence grounding quality, citation precision, and hallucina-
+tion rate.
+The project topic focuses on two key components:
+1. Retrieval-Generation Interaction: Investigate different retrieval strategies (sparse/ dense/
+hybrid retrieval) paired with various LLMs (e.g., open-source models like LLaMA or
+closed-source models like GPT). You should:
+• Implement at least 2 retrieval methods (e.g., BM25 vs. Contriever) and 2 generation
+models
+• Analyze how retrieval precision affects final answer quality using the HotpotQA
+dev set
+• Compare zero-shot vs. instruction-tuned models (e.g., https://huggingface.co/
+Intel/neural-chat-7b-v3-3 )
+• Conduct experiments on at least two different domains and report cross-domain
+performance differences.
+2. Hallucination Mitigation: Design experiments to measure how RAG reduces model fab-
+rication:
+• Quantify hallucination rates using metrics like FActScore (Min et al.)
+• Evaluate whether citation grounding quality differs across domains.
+• Evaluate citation quality through human assessment (e.g., citation precision/recall)
+• Compare vanilla RAG vs. advanced variants (e.g., Self-RAG (Asai et al.))
+Students are encouraged to explore innovative retrieval strategies (e.g., query rewriting) or
+propose new evaluation frameworks.
+Hint: Limit retrieved documents to 3–5 per query to balance performance and computational
+cost.
+Reference
+1. Lewis P , et al. Retrieval-augmented generation for knowledge-intensive NLP tasks. NeurIPS
+2020.
+2. Izacard G, et al. Leveraging passage retrieval with generative models for open domain
+QA. EACL 2021.
+3. Asai A, et al. Self-RAG: Learning to Retrieve, Generate, and Critique through Self-
+Reflection. ICLR 2024.
+4. Min S, et al. FActScore: Fine-grained Atomic Evaluation of Factual Precision in Long
+Form Text Generation. EMNLP 2023.
+Department of Computer Science 5City University of Hong Kong Natural Language Processing, Q2 2025-2026
+5. Yang Z, et al. HotpotQA: A Dataset for Diverse, Explainable Multi-hop Question An-
+swering. EMNLP 2018.
+Department of Computer Science 6City University of Hong Kong Natural Language Processing, Q2 2025-2026
+Topic 5 - Smart Meeting Assistant
+In this project, you are expected to design a smart meeting assistant that enhances virtual and
+in-person meetings by providing real-time support for participants. The system should assist
+users by transcribing conversations, summarizing discussions, extracting key action items, and
+offering relevant insights.
+Your smart meeting assistant should incorporate the following key features:
+1. Real-time Speech-to-Text Transcription: Implement speech recognition to accurately tran-
+scribe spoken conversations into text. The system should support multiple speakers and
+differentiate between them for better clarity in meeting notes.
+2. Automatic Meeting Summarization: Develop an intelligent summarization module that
+extracts the most important points from the conversation. The summary should be con-
+cise and provide an overview of key topics, decisions made, and follow-up actions.
+3. Machine Translation for Multilingual Meetings: Implement a translation module that
+allows real-time translation of meeting discussions into multiple languages. This feature
+should enable seamless communication in multilingual teams by translating speech or
+text-based discussions while preserving context and meaning.
+4. Context-Aware Action Item Extraction: Enable the system to identify and track action
+items from the discussion. The assistant should recognize commitments like “I will send
+the report by Friday” and automatically assign tasks to relevant participants.
+5. Meeting Sentiment and Engagement Analysis: Develop a module that analyzes the emo-
+tional dynamics and engagement patterns of the meeting. Instead of focusing on individ-
+ual commitments, the system should capture broader interaction signals such as agree-
+ment, disagreement, tension, or hesitation (e.g., “I am not convinced this will work”).
+The assistant should provide an overall sentiment overview and highlight emotionally
+significant moments during the discussion.
+This project challenges you to apply NLP , speech processing, and context awareness to
+create a useful AI tool for workplace productivity. You are encouraged to design a dataset and
+explore innovative features to enhance the system’s effectiveness.
+Reference
+1. Tan, Haochen, et al. “Reconstruct Before Summarize: An Efficient Two-Step Framework
+for Condensing and Summarizing Meeting Transcripts.” Proceedings of the 2023 Con-
+ference on Empirical Methods in Natural Language Processing. 2023.
+2. Wu, Han, et al. “VCSUM: A Versatile Chinese Meeting Summarization Dataset.” Find-
+ings of the Association for Computational Linguistics: ACL 2023.
+3. H. Zhang, P . S. Yu, and J. Zhang, ‘A systematic survey of text summarization: From
+statistical methods to large language models’, arXiv preprint arXiv:2406.11289, 2024.
+4. Park, Chanjun, et al. “BTS: Back TranScription for speech-to-text post-processor using
+text-to-speech-to-text.” Proceedings of the 8th Workshop on Asian Translation (WAT2021).
+2021.
+Department of Computer Science 7City University of Hong Kong Natural Language Processing, Q2 2025-2026
+Topic 6 - Open Your Mind
+This is a highly flexible project where you are encouraged to explore any idea involving lan-
+guage models that interests you, as long as it relates to the concepts covered in the course. We
+strongly recommend experimenting with cutting-edge LLMs (such as GPT, DeepSeek, LLaMA,
+etc.) through API integration or local deployment. For example, you might consider combin-
+ing multiple AI techniques (e.g., RAG + fine-tuning) or exploring ethical aspects such as bias
+detection and fact-checking. Feel free to be creative and try something innovative and original.
+Before starting your group work, please contact the TAs to have your selected topic approved.
+Department of Computer Science 8

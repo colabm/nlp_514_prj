@@ -73,6 +73,33 @@ def test_critic_parse_response_invalid_json():
     response_text = "这不是一个有效的 JSON 响应"
 
     result = critic._parse_response(response_text)
-    # 应该返回默认值
-    assert result["faithfulness_score"] == 3.0
-    assert result["relevance_score"] == 3.0
+    # 应该返回默认值（保守策略，触发重试）
+    assert result["faithfulness_score"] == 2.0
+    assert result["relevance_score"] == 2.0
+
+
+def test_critic_parse_response_with_analysis():
+    """测试解析包含 analysis 字段的新格式 JSON"""
+    from src.critic import Critic
+    from src.config import CriticConfig, LLMConfig
+
+    critic = Critic(CriticConfig(), LLMConfig())
+
+    response_text = '''
+    {
+        "analysis": {
+            "hallucinations": ["编造的内容1", "编造的内容2"],
+            "missing_parts": [],
+            "inaccuracies": []
+        },
+        "faithfulness_score": 5,
+        "relevance_score": 5,
+        "feedback": "测试",
+        "suggested_query": null
+    }
+    '''
+
+    result = critic._parse_response(response_text)
+    # 有 2 个幻觉问题时，faithfulness 分数应该被自动降低
+    assert result["faithfulness_score"] <= 3
+    assert result["relevance_score"] == 5

@@ -2,10 +2,10 @@
 import streamlit as st
 from pathlib import Path
 
-from src.config import AppConfig, ChunkingConfig, LLMConfig, CriticConfig
-from src.document_processor import DocumentProcessor
-from src.index_builder import IndexBuilder
-from src.reflective_agent import ReflectiveAgent
+from config import AppConfig, ChunkingConfig, LLMConfig, CriticConfig
+from document_processor import DocumentProcessor
+from index_builder import IndexBuilder
+from reflective_agent import ReflectiveAgent
 
 st.set_page_config(
     page_title="Auto-Reflective Academic Agent",

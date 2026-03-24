@@ -1,11 +1,15 @@
 """evaluation/evaluate.py - RAG Triad 评估脚本"""
 import csv
 import json
+import sys
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import List
 
-from src.reflective_agent import ReflectiveAgent
+# 添加 src 目录到 Python 路径
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+
+from reflective_agent import ReflectiveAgent
 
 
 @dataclass

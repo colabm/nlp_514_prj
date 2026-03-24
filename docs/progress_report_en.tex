@@ -1,0 +1,122 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{amsmath}
+
+\title{CS6493 Natural Language Processing \\ Project Progress Report \\ \vspace{0.5em} \large Auto-Reflective Academic Agent: A Self-Evaluating Conversational System for Scholarly Document Analysis}
+\author{Group Project - Topic 3: Building Practical LLM Applications with LlamaIndex}
+\date{March 2026}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction and Motivation}
+
+The emergence of Large Language Models (LLMs) has fundamentally transformed how humans interact with textual information. Retrieval-Augmented Generation (RAG) represents one of the most promising paradigms for grounding LLM outputs in authoritative external knowledge, thereby mitigating the well-documented issue of hallucination. However, when applied to specialized domains such as academic literature, conventional RAG pipelines exhibit significant limitations: retrieved context may be insufficiently relevant, generated responses may deviate from source material, and the system lacks any mechanism for self-assessment or quality control.
+
+This project addresses these limitations by developing an \textbf{Auto-Reflective Academic Agent}—a conversational question-answering system specifically designed for scholarly PDF documents. The central innovation lies in the introduction of an automated self-evaluation and self-correction mechanism. Unlike traditional RAG systems that present generated responses directly to users, our agent incorporates an internal ``Critic'' that assesses response quality before delivery. When the initial response fails to meet predefined quality standards, the system autonomously refines its retrieval query and regenerates an improved answer, creating a closed-loop feedback mechanism that operates without human intervention.
+
+This approach draws inspiration from recent advances in AI alignment research, particularly Reinforcement Learning from AI Feedback (RLAIF) and Self-RAG frameworks, which demonstrate that language models can effectively evaluate and improve their own outputs. By implementing these principles in a practical academic tool, we aim to bridge the gap between theoretical advances in LLM self-improvement and real-world applications in scholarly research workflows.
+
+\section{Problem Statement and Research Questions}
+
+Academic documents present unique challenges for question-answering systems. Research papers contain dense technical content, specialized terminology, complex logical arguments, and intricate cross-references between sections. A reader studying a paper might pose questions ranging from high-level summaries (``What is the main contribution of this work?'') to specific technical details (``How does the proposed method handle edge cases?'') to comparative analyses (``How does this approach differ from previous methods?'').
+
+Existing RAG systems often struggle with such queries for several reasons. First, naive chunking strategies may fragment coherent arguments or separate related concepts, leading to incomplete context retrieval. Second, the generation model may produce plausible-sounding but factually incorrect statements—a particularly insidious failure mode in academic contexts where precision is paramount. Third, without feedback mechanisms, errors propagate silently, and users have no way of knowing whether the system's response is trustworthy.
+
+Our project investigates the following research questions:
+\begin{enumerate}
+    \item Can an automated self-evaluation mechanism effectively identify low-quality RAG outputs without human supervision?
+    \item Does iterative query refinement based on self-generated feedback improve answer quality compared to single-pass generation?
+    \item What is the trade-off between model capacity and response quality when using quantized local LLM deployments?
+    \item How do different document chunking strategies affect downstream retrieval and generation performance?
+\end{enumerate}
+
+\section{Methodology}
+
+\subsection{System Architecture Overview}
+
+The proposed system follows a modular architecture comprising four interconnected components: document processing, vector indexing, response generation, and self-evaluation. The workflow proceeds as follows: academic PDFs are first ingested and segmented into semantically coherent chunks; these chunks are then embedded into a vector space and indexed for efficient retrieval; when a user poses a question, relevant chunks are retrieved and fed to a language model along with the query; finally, before presenting the response, an internal critic evaluates its quality and triggers refinement if necessary.
+
+\subsection{Document Processing Pipeline}
+
+The quality of downstream retrieval depends critically on how source documents are segmented. We implement and compare two chunking strategies to investigate their relative merits.
+
+The first strategy employs fixed-size chunking with overlapping windows. Documents are divided into segments of predetermined token length (512 tokens in our implementation), with adjacent chunks sharing a small overlap region (50 tokens) to preserve local context across boundaries. This approach is computationally efficient and deterministic but may arbitrarily split coherent textual units such as paragraphs, equations, or logical arguments.
+
+The second strategy employs semantic chunking guided by embedding similarity. Rather than imposing rigid length constraints, this approach identifies natural breakpoints where the semantic content shifts significantly. By computing embeddings for consecutive sentences and detecting similarity discontinuities, the system can preserve the integrity of self-contained conceptual units. While more computationally intensive, this strategy is hypothesized to yield higher-quality chunks that better serve retrieval needs.
+
+\subsection{Retrieval and Conversational Context Management}
+
+Retrieved chunks form the knowledge foundation for response generation. We employ dense vector retrieval using a Chinese-English bilingual embedding model fine-tuned for academic text. Given a user query, the system identifies the top-$k$ most semantically similar chunks from the indexed corpus.
+
+Academic inquiry often unfolds across multiple conversational turns. A user might first ask about a paper's methodology, then follow up with questions about specific experimental details, using pronouns and references that presuppose shared context. To support such multi-turn interactions, we integrate a conversational memory buffer that maintains recent dialogue history. This enables the system to resolve coreferences and maintain topical coherence across extended interactions.
+
+\subsection{The Self-Reflective Generation Loop}
+
+The core innovation of our system is the self-reflective generation loop, which transforms the conventional single-pass RAG pipeline into an iterative self-improvement process.
+
+Upon receiving a user query, the system first performs standard RAG: retrieving relevant context and generating an initial response. However, rather than immediately presenting this response, the system invokes an internal Critic module. The Critic evaluates the draft response along two dimensions derived from the RAG Triad evaluation framework:
+
+\textbf{Faithfulness} measures whether the generated text is strictly grounded in the retrieved context. A faithful response makes claims that can be directly traced to specific passages in the source chunks, avoiding hallucinated information or unsupported generalizations. The Critic assigns a faithfulness score on a 1-5 scale based on explicit evaluation criteria.
+
+\textbf{Answer Relevance} measures whether the response directly addresses the user's query. A highly relevant response provides the specific information requested without excessive tangential content or evasive hedging. This dimension is also scored on a 1-5 scale.
+
+The Critic computes an aggregate quality score by averaging these two dimensions. If this score exceeds a predefined threshold (set to 4.0 in our implementation), the response is deemed acceptable and presented to the user. Otherwise, the Critic generates diagnostic feedback identifying specific deficiencies and proposes a refined query that might yield better context.
+
+The system then uses this refined query to re-retrieve context and generate a new response, which undergoes another round of evaluation. This loop continues until either the quality threshold is met or a maximum iteration limit (set to 3) is reached, at which point the best available response is returned along with transparency indicators showing how many refinement cycles occurred.
+
+\subsection{Local LLM Deployment}
+
+To ensure data privacy and eliminate dependence on external API services, we deploy all language models locally using the Ollama framework. Ollama provides efficient inference for quantized models, enabling deployment of capable LLMs on consumer hardware. We utilize 4-bit quantized versions of instruction-tuned models, specifically comparing a larger model (Qwen-2.5-7B-Instruct) against a more compact alternative (Qwen-2.5-1.5B-Instruct) to characterize the quality-efficiency trade-off.
+
+\section{Evaluation Framework}
+
+Our evaluation methodology focuses exclusively on natural language processing metrics that assess the linguistic and informational quality of system outputs. We deliberately exclude hardware-centric metrics such as memory consumption or inference latency, as these are implementation details rather than measures of the system's core capabilities.
+
+The primary evaluation framework is the RAG Triad, which comprehensively assesses the three critical junctions in any RAG pipeline:
+
+\textbf{Context Relevance} evaluates retrieval quality by measuring what proportion of retrieved chunks contain information pertinent to answering the query. High context relevance indicates efficient retrieval with minimal noise.
+
+\textbf{Faithfulness} evaluates generation quality by measuring what proportion of claims in the generated response can be attributed to the retrieved context. High faithfulness indicates accurate, grounded generation without hallucination.
+
+\textbf{Answer Relevance} evaluates end-to-end utility by measuring how well the final response addresses the user's actual information need. High answer relevance indicates that the system successfully understood the query and provided appropriate information.
+
+Beyond the standard RAG Triad, we introduce a custom metric to quantify our core innovation: the \textbf{Self-Correction Success Rate}. This metric measures the proportion of queries where (a) the initial response scored below the quality threshold, (b) the self-reflective loop was triggered, and (c) the final response after refinement exceeded the threshold. A high self-correction success rate demonstrates that the automated feedback mechanism effectively improves response quality without human intervention.
+
+\section{Current Progress}
+
+Development has proceeded according to a three-phase plan: architecture design, implementation, and experimental evaluation. As of this report, the first two phases are substantially complete.
+
+\subsection{Completed Work}
+
+The foundational infrastructure is fully operational. We have established a Python development environment with all necessary dependencies, configured the Ollama framework for local model deployment, and verified that quantized Qwen models perform adequately for our use case.
+
+The document processing pipeline has been implemented with support for both fixed-size and semantic chunking strategies. The system can ingest PDF files, extract textual content, segment documents according to the selected strategy, and construct vector indices for efficient retrieval.
+
+The core self-reflective mechanism—our primary innovation—has been implemented and validated through unit testing. The Critic module successfully parses structured evaluation outputs, computes aggregate quality scores, generates diagnostic feedback, and proposes refined queries when initial responses are inadequate.
+
+An interactive demonstration interface has been developed using the Streamlit framework. This interface allows users to upload PDF documents, configure system parameters (model selection, chunking strategy, quality threshold), pose questions, and inspect the internal reflection process including intermediate evaluations and refinement steps.
+
+\subsection{Remaining Work}
+
+The experimental evaluation phase will occupy the remainder of the project timeline. Specific tasks include:
+
+First, constructing a comprehensive test dataset comprising 20-30 questions of varying complexity (factual recall, methodological explanation, comparative analysis, multi-turn dialogue) based on selected NLP research papers.
+
+Second, executing systematic experiments across the experimental conditions: two LLM backends (7B vs. 1.5B), two chunking strategies (fixed vs. semantic), and with/without the self-reflective mechanism enabled.
+
+Third, computing quantitative metrics using LLM-based evaluation supplemented by human verification on a sample subset.
+
+Fourth, synthesizing findings into the final project report and preparing materials for the class presentation.
+
+\section{Conclusion}
+
+This progress report has presented our ongoing work on the Auto-Reflective Academic Agent, a conversational system that introduces automated self-evaluation and self-correction to the RAG paradigm. The core implementation is complete: the system can ingest academic PDFs, answer user questions, and autonomously refine its responses when initial outputs fall below quality standards. The remaining work focuses on rigorous experimental evaluation to quantify the benefits of this approach and characterize its behavior across different configurations. We anticipate that the final results will demonstrate the practical value of self-reflective mechanisms for improving RAG system reliability in specialized domains.
+
+\end{document}

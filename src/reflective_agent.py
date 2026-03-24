@@ -7,8 +7,8 @@ from llama_index.core.chat_engine import CondensePlusContextChatEngine
 from llama_index.core.memory import ChatMemoryBuffer
 from llama_index.llms.ollama import Ollama
 
-from src.config import AppConfig
-from src.critic import Critic, CriticResult
+from config import AppConfig
+from critic import Critic, CriticResult
 
 
 @dataclass

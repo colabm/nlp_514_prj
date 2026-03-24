@@ -10,7 +10,7 @@ from llama_index.core.node_parser import (
 from llama_index.core.readers import SimpleDirectoryReader
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
-from src.config import ChunkingConfig
+from config import ChunkingConfig
 
 
 class DocumentProcessor:

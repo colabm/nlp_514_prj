@@ -6,7 +6,7 @@ from llama_index.core import VectorStoreIndex, StorageContext, load_index_from_s
 from llama_index.core.schema import BaseNode
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
-from src.config import AppConfig
+from config import AppConfig
 
 
 class IndexBuilder:
